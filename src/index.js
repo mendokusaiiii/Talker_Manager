@@ -3,6 +3,9 @@ const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 
+const { emailValidate, passwordValidate } = require('./middlewares/validators');
+const tokens = require('./middlewares/tokenGenerator');
+
 const app = express();
 app.use(express.json());
 
@@ -12,6 +15,11 @@ const PORT = '3000';
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
+});
+
+app.post('/login', emailValidate, passwordValidate, (_req, res) => {
+  const token = tokens();
+  return res.status(200).send({ token });
 });
 
 app.get('/talker/:id', async (req, res) => {
