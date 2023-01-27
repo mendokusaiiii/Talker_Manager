@@ -33,6 +33,12 @@ app.post('/login', emailValidate, passwordValidate, (_req, res) => {
   return res.status(200).send({ token });
 });
 
+app.get('/talker', async (_req, res) => {
+  const talkerList = await fs.readFile(talkerObj);
+  const response = await JSON.parse(talkerList);
+  return res.status(200).json(response);
+  });
+
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;
   const talkerList = await fs.readFile(talkerObj);
@@ -46,18 +52,11 @@ app.get('/talker/:id', async (req, res) => {
   return res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
 });
 
-app.get('/talker', async (_req, res) => {
-  const talkerList = await fs.readFile(talkerObj);
-  const response = await JSON.parse(talkerList);
-  return res.status(200).json(response);
-  });
-
   app.post('/talker', authentications, speakerName, speakerAge, speakerTalk,
 speakerWatched, speakerRate, async (req, res) => {
   const talker = { ...req.body };
   const talkerList = await fs.readFile(talkerObj);
-  const response = await JSON.parse(talkerList);
-  const speakerId = response[response.length - 1].id + 1;
+  const speakerId = talkerList[talkerList.length - 1].id + 1;
   const currentSpeaker = { ...talker, id: speakerId };
   const newTalkerList = [...talkerList, currentSpeaker];
   await fs.writeFile(talkerObj, JSON.stringify(newTalkerList));
