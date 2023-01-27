@@ -33,6 +33,22 @@ app.post('/login', emailValidate, passwordValidate, (_req, res) => {
   return res.status(200).send({ token });
 });
 
+app.get('/talker/search', authentications, async (req, res) => {
+  const { q } = req.query;
+  const talkerList = JSON.parse(await fs.readFile(talkerObj));
+
+  if (!q || !q.length) {
+    return res.status(200).json(talkerList);
+  }
+  const search = q.toLowerCase();
+  const searchList = talkerList.filter((talkers) => talkers.name
+    .toLowerCase().includes(search));
+  if (searchList.length === 0) {
+    return res.status(200).json([]);
+  }
+  return res.status(200).json(searchList);
+});
+
 app.get('/talker', async (_req, res) => {
   const talkerList = await fs.readFile(talkerObj);
   const response = await JSON.parse(talkerList);
@@ -78,7 +94,7 @@ app.put('/talker/:id', authentications, speakerName, speakerAge, speakerTalk,
 
 app.delete('/talker/:id', authentications, async (req, res) => {
   const { id } = req.params;
-  const talkerList = JSON.parse(await fs.readFile(talkerObj, 'utf8'));
+  const talkerList = JSON.parse(await fs.readFile(talkerObj));
   const newList = talkerList.filter((item) => item.id !== Number(id));
   await fs.writeFile(talkerObj, JSON.stringify(newList));
   res.status(204).json();
