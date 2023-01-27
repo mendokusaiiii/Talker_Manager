@@ -21,7 +21,7 @@ app.use(express.json());
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 
-const talkerObj = path.resolve(__dirname, './talker.json');
+const talkerObj = path.resolve(__dirname, 'talker.json');
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -56,9 +56,10 @@ app.get('/talker/:id', async (req, res) => {
 speakerWatched, speakerRate, async (req, res) => {
   const talker = { ...req.body };
   const talkerList = await fs.readFile(talkerObj);
-  const speakerId = talkerList[talkerList.length - 1].id + 1;
+  const response = await JSON.parse(talkerList);
+  const speakerId = response.length + 1;
   const currentSpeaker = { ...talker, id: speakerId };
-  const newTalkerList = [...talkerList, currentSpeaker];
+  const newTalkerList = [...response, currentSpeaker];
   await fs.writeFile(talkerObj, JSON.stringify(newTalkerList));
   res.status(201).json(currentSpeaker);
 });
