@@ -76,6 +76,14 @@ app.put('/talker/:id', authentications, speakerName, speakerAge, speakerTalk,
   res.status(200).json(currentSpeaker);
 });
 
+app.delete('/talker/:id', authentications, async (req, res) => {
+  const { id } = req.params;
+  const talkerList = JSON.parse(await fs.readFile(talkerObj, 'utf8'));
+  const newList = talkerList.filter((item) => item.id !== Number(id));
+  await fs.writeFile(talkerObj, JSON.stringify(newList));
+  res.status(204).json();
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
